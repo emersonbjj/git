@@ -353,6 +353,9 @@ services:
       # ─── APLICAÇÃO ───
       SITE_URL: "${SITE_URL}"
       SUPPORT_EMAIL: "${SUPPORT_EMAIL}"
+
+      #----- CACHE
+      REDIS_URL: "${REDIS_URL}"
       
     command: [ "start", "--main-service", "/home/deno/functions/main" ]
 
