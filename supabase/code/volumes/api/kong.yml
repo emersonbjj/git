@@ -22,7 +22,6 @@ basicauth_credentials:
     password: $DASHBOARD_PASSWORD
 
 services:
-
   - name: auth-v1
     url: http://auth:9999/
     routes:
@@ -57,13 +56,25 @@ services:
 
   - name: realtime-v1-ws
     url: http://realtime:4000/socket
+    protocol: http
     routes:
       - name: realtime-v1-ws
         strip_path: true
         paths:
           - /realtime/v1/
+        protocols:
+          - http
+          - https
     plugins:
       - name: cors
+      - name: request-transformer
+        config:
+          replace:
+            headers:
+              - "Host:realtime-dev.localhost"
+          add:
+            headers:
+              - "X-Forwarded-Host:realtime-dev.localhost"
 
   - name: realtime-v1-rest
     url: http://realtime:4000/api
@@ -74,6 +85,14 @@ services:
           - /realtime/v1/api
     plugins:
       - name: cors
+      - name: request-transformer
+        config:
+          replace:
+            headers:
+              - "Host:realtime-dev.localhost"
+          add:
+            headers:
+              - "X-Forwarded-Host:realtime-dev.localhost"
 
   - name: storage-v1
     url: http://storage:5000/
