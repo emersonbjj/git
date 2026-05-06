@@ -22,6 +22,7 @@ basicauth_credentials:
     password: $DASHBOARD_PASSWORD
 
 services:
+  # ─── Auth ───────────────────────────────────────────────
   - name: auth-v1
     url: http://auth:9999/
     routes:
@@ -38,6 +39,7 @@ services:
             - admin
             - anon
 
+  # ─── PostgREST ──────────────────────────────────────────
   - name: rest-v1
     url: http://rest:3000/
     routes:
@@ -54,12 +56,35 @@ services:
             - admin
             - anon
 
+  # ─── Realtime REST (deve vir ANTES da rota WS) ──────────
+  - name: realtime-v1-rest
+    url: http://realtime:4000/api
+    routes:
+      - name: realtime-v1-rest
+        strip_path: true
+        regex_priority: 200
+        paths:
+          - /realtime/v1/api
+    plugins:
+      - name: cors
+      - name: request-transformer
+        config:
+          replace:
+            headers:
+              - "Host:realtime-dev.localhost"
+          add:
+            headers:
+              - "X-Forwarded-Host:realtime-dev.localhost"
+
+  # ─── Realtime WebSocket ─────────────────────────────────
+  # Realtime resolve o tenant pelo PRIMEIRO segmento do Host.
+  # Reescrevemos para "realtime-dev.localhost" -> tenant external_id = "realtime-dev".
   - name: realtime-v1-ws
     url: http://realtime:4000/socket
-    protocol: http
     routes:
       - name: realtime-v1-ws
         strip_path: true
+        regex_priority: 100
         paths:
           - /realtime/v1/
         protocols:
@@ -75,25 +100,9 @@ services:
           add:
             headers:
               - "X-Forwarded-Host:realtime-dev.localhost"
+              - "X-Forwarded-Proto:https"
 
-  - name: realtime-v1-rest
-    url: http://realtime:4000/api
-    routes:
-      - name: realtime-v1-rest
-        strip_path: true
-        paths:
-          - /realtime/v1/api
-    plugins:
-      - name: cors
-      - name: request-transformer
-        config:
-          replace:
-            headers:
-              - "Host:realtime-dev.localhost"
-          add:
-            headers:
-              - "X-Forwarded-Host:realtime-dev.localhost"
-
+  # ─── Storage ────────────────────────────────────────────
   - name: storage-v1
     url: http://storage:5000/
     routes:
@@ -104,6 +113,7 @@ services:
     plugins:
       - name: cors
 
+  # ─── Edge Functions ─────────────────────────────────────
   - name: functions-v1
     url: http://functions:9000/
     routes:
@@ -114,6 +124,7 @@ services:
     plugins:
       - name: cors
 
+  # ─── Dashboard (Studio) ─────────────────────────────────
   - name: dashboard
     url: http://studio:3000/
     routes:
