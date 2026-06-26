@@ -225,7 +225,7 @@ services:
     image: supabase/storage-api:v1.22.17
     restart: unless-stopped
     volumes:
-      - ./volumes/storage:/var/lib/storage:z
+      - /storage/supabase/storage:/var/lib/storage:z
     healthcheck:
       test:
         [
@@ -267,7 +267,7 @@ services:
     image: darthsim/imgproxy:v3.8.0
     restart: unless-stopped
     volumes:
-      - ./volumes/storage:/var/lib/storage:z
+      - /storage/supabase/storage:/var/lib/storage:z
     healthcheck:
       test: [ "CMD", "imgproxy", "health" ]
       timeout: 5s
