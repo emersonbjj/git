@@ -15,8 +15,6 @@ x-logging-default: &logging-default
       max-file: "5"
   security_opt:
     - no-new-privileges:true
-  networks:
-    - orvion
 
 services:
 
